@@ -46,21 +46,25 @@ def load_bibtex(df_articles: pd.DataFrame) -> pd.DataFrame:
 
     df = df[df['doi'].apply(lambda x: x.lower() not in cache.keys())]
 
-    # print(df)
+
     if df.empty:
-        df_articles['citation_key'] = ''
+        df_articles['citation_key'] = df_articles['doi'].apply(
+            lambda x: cache[x.lower()]['ID'] if x.lower() in cache.keys() else '')
         return df_articles
+
+
 
     df['bibtex'] = df['doi'].apply(get_bibtex_entry)
     df = df.dropna(subset=['bibtex'])
+
     bibtex_str = entries_to_str(df['bibtex'].values.tolist())
     with open(bibtex_file, 'a') as f:
         f.write(bibtex_str)
 
     # return the citation key within df_articles
-    df_articles['citation_key'] = df_articles['doi'].apply(
+    df['citation_key'] = df['doi'].apply(
         lambda x: cache[x.lower()]['ID'] if x.lower() in cache.keys() else '')
-    return df_articles
+    return df
 
 
 def load_search_json(file) -> list[dict[str, str]]:

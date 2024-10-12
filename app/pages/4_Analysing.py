@@ -5,12 +5,16 @@ dotenv.load_dotenv('./app/main.env')
 import streamlit as st
 from multiprocessing import Pool
 from app.src.data_pipeline import warehouse_pipeline
+import pandas as pd
 from app.src.gemini_abstract import gemini_grade
 from app.src.keyword_group import KeywordGroup
 from app.src.utils import load_keywords, load_search_files, load_gemini
 
 if 'running_ai_filtering' not in st.session_state:
     st.session_state.running_ai_filtering = False
+
+
+data:pd.DataFrame = load_gemini()
 
 st.markdown('### AI Filtering')
 keywords = load_keywords()
@@ -46,7 +50,20 @@ elif st.session_state['running_ai_filtering']:
     with st.spinner('Filtering papers... check the cmd line', _cache=True):
         time.sleep(5)
 
+# show a table with cols keyword, 1, 2, 3, 4, 5 with cnt of each grade
+if not data.empty:
+    st.markdown('### Grades')
+    if selected_search_keyword:
+        data = data[data['keywords'] == selected_search_keyword.default_keywords_filename()]
+    # split the col grade to create a new col for each grade
+    data['grade'] = data['gemini-1.5-flash-latest_grade'].astype(str)
+    data = data.groupby(['keywords', 'grade']).size().unstack(fill_value=0)
+    data = data.reset_index()
+
+    st.dataframe(data,hide_index=True)
+
 if os.getenv('ENV') == 'DEV':
     print('\n\t\t----------------------'
           '\n\t\t--- DONE ANALYSING ---'
           '\n\t\t----------------------\n')
+

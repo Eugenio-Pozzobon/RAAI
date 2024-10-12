@@ -55,7 +55,8 @@ try:
     df_searches_review = merge_data(pd.DataFrame(load_all_searches()), df_gemini, pd.DataFrame(get_all_reviews()))
 
     df_searches_review = df_searches_review.drop_duplicates(subset=['title'])
-    df_searches_review = load_bibtex(df_searches_review)
+    # df_searches_review = load_bibtex(df_searches_review)
+    df_searches_review['citation_key'] = ''
 except:
     df_searches_review = pd.DataFrame()
 
