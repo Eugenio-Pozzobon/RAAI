@@ -61,7 +61,7 @@ def gemini_grade(keyword: KeywordGroup, overwrite=False):
     file_name = keyword.default_keywords_filename() + '.json'
     model, model_name = setup_google_gemini()
     max_requests_per_minute = None
-    # max_requests_per_minute = 15 if os.getenv('ENV') == 'LIVE' else None
+    max_requests_per_minute = 15 if os.getenv('ENV') == 'LIVE' else None
     gemini_file = '_gemini.json'
     try:cache = json.load(open(f'./app/_searches/{gemini_file}', 'r'))['articles']
     except:cache = []
